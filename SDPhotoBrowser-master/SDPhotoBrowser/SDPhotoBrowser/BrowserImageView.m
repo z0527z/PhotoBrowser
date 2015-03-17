@@ -20,8 +20,6 @@
 //    UIScrollView *_zoomingScroolView;
     UIImageView *_zoomingImageView;
     CGFloat _totalScale;
-//    CGFloat _imageWidth;
-//    CGFloat _imageHeight;
     BOOL _didImageFrameChanged;
     CGFloat _minScaleFactor;
     CGFloat _maxScaleFactor;
