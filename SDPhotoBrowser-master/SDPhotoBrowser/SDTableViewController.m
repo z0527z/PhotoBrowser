@@ -36,12 +36,15 @@
     
     self.title = @"图片浏览(GSD)";
     
-    _srcStringArray = @[@"http://ww2.sinaimg.cn/thumbnail/904c2a35jw1emu3ec7kf8j20c10epjsn.jpg",
+    _srcStringArray = @[@"http://ww4.sinaimg.cn/thumbnail/e940e6d7gw1eptkxevyvbj20bh2w7tsn.jpg",
                         @"http://ww2.sinaimg.cn/thumbnail/67307b53jw1epqq3bmwr6j20c80axmy5.jpg",
                         @"http://ww2.sinaimg.cn/thumbnail/9ecab84ejw1emgd5nd6eaj20c80c8q4a.jpg",
                         @"http://ww2.sinaimg.cn/thumbnail/642beb18gw1ep3629gfm0g206o050b2a.gif",
                         @"http://ww4.sinaimg.cn/thumbnail/9e9cb0c9jw1ep7nlyu8waj20c80kptae.jpg",
-                        @"http://e.hiphotos.baidu.com/image/pic/item/1c950a7b02087bf40642761ef1d3572c10dfcf9e.jpg"];
+                        @"http://ww3.sinaimg.cn/thumbnail/413420fbjw1eq8nb3dwm1j20ez0540tn.jpg",
+                        @"http://ww3.sinaimg.cn/thumbnail/a7c49da7jw1eq90t7ixhyj20c80bq755.jpg",
+                        @"http://ww4.sinaimg.cn/thumbnail/a7c49da7gw1eq7mi96x00g20av05n1l0.gif",
+                        @"http://ww2.sinaimg.cn/thumbnail/a7c49da7gw1eq7qgewqitj20c10lidhi.jpg"];
 }
 
 

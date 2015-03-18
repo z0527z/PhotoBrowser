@@ -48,11 +48,13 @@
         float width = frame.size.width;
         float height = width;
         _didImageFrameChanged = YES;
-        _zoomingImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+//        _zoomingImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+        _zoomingImageView = [[UIImageView alloc] init];
         [self addSubview:_zoomingImageView];
-        
+//
         self.delegate = self;
         _minScaleFactor = 1.0f;
+//        self.contentInset = UIEdgeInsetsMake(SDPhotoBrowserImageViewMargin, SDPhotoBrowserImageViewMargin, SDPhotoBrowserImageViewMargin, SDPhotoBrowserImageViewMargin);
 //        self.minimumZoomScale = 1.0f;
 //        self.maximumZoomScale = 2.0f;
     }
@@ -94,11 +96,16 @@
         }];
 //        _zoomingImageView.bounds = CGRectMake(0, 0, _imageWidth, _imageHeight);
 //        self.contentSize = CGSizeMake(w, h);
-        self.contentSize = _zoomingImageView.frame.size;
+//        self.contentSize = CGSizeMake(<#CGFloat width#>, <#CGFloat height#>)
         
         NSLog(@"contentWidth:%f, frameWidth:%f, frame:%@", contentWidth, frameWidth, NSStringFromCGRect(_zoomingImageView.frame));
     }
 
+}
+
+- (void)setImageViewFrame:(CGRect)imageViewFrame
+{
+    _zoomingImageView.frame = imageViewFrame;
 }
 
 - (CGRect)imageViewFrame
@@ -109,6 +116,8 @@
 - (void)setImage:(UIImage *)image
 {
     _zoomingImageView.image = image;
+    _zoomingImageView.bounds = CGRectMake(0, 0, image.size.width, image.size.height);
+    self.contentSize = self.bounds.size;
 }
 
 - (UIImage *)image
@@ -162,11 +171,16 @@
             float width = image.size.width;
             float height = image.size.height;
             
-            float widFactor = width / self.bounds.size.width;
-            float heightFacor = height / self.bounds.size.height;
+            float widFactor = width / imageViewWeak.bounds.size.width;
+            float heightFacor = height / imageViewWeak.bounds.size.height;
             
             _maxScaleFactor = MAX(widFactor, heightFacor);
             _needSetScaleFactor = YES;
+//            [UIView animateWithDuration:0.3f animations:^{
+//                _zoomingImageView.bounds = CGRectMake(0, 0, width, height);
+//            }];
+//            
+            
 //
 //            _imageWidth = width;
 //            _imageHeight = height;
@@ -184,7 +198,6 @@
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
     // 目前添加，图片宽度比屏幕窄的图片不支持缩放
-#warning - 宽度比较窄，但是长度比较长的图片，尚未处理
     float width = self.bounds.size.width;
     if (_zoomingImageView.image.size.width < width) {
         return nil;

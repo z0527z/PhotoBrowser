@@ -95,6 +95,7 @@
 {
     int index = _scrollView.contentOffset.x / _scrollView.bounds.size.width;
     UIImageView *currentImageView = _scrollView.subviews[index];
+//    BrowserImageView *currentImageView = _scrollView.subviews[index];
     
     UIImageWriteToSavedPhotosAlbum(currentImageView.image, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
     
@@ -140,7 +141,6 @@
     CGRect frame = self.bounds;
     
     for (int i = 0; i < self.imageCount; i++) {
-//        SDBrowserImageView *imageView = [[SDBrowserImageView alloc] init];
         BrowserImageView * imageView = [[BrowserImageView alloc] initWithFrame:frame];
         imageView.tag = i;
         [imageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(photoClick:)]];
@@ -165,45 +165,6 @@
         imageView.image = [self placeholderImageForIndex:index];
     }
     imageView.hasLoadedImage = YES;
-}
-
-- (void)photoClick:(UITapGestureRecognizer *)recognizer
-{
-    _scrollView.hidden = YES;
-    
-//    SDBrowserImageView *currentImageView = (SDBrowserImageView *)recognizer.view;
-    BrowserImageView * currentImageView = (BrowserImageView *)recognizer.view;
-    NSInteger currentIndex = currentImageView.tag;
-    
-    UIView *sourceView = self.sourceImagesContainerView.subviews[currentIndex];
-    CGRect targetTemp = [self.sourceImagesContainerView convertRect:sourceView.frame toView:self];
-    
-    UIImageView *tempView = [[UIImageView alloc] init];
-    tempView.image = currentImageView.image;
-    
-//    NSLog(@"w:%f, currentW:%f, currentH:%f", self.bounds.size.width, currentImageView.image.size.width, currentImageView.image.size.height);
-//    CGFloat h = (self.bounds.size.width / currentImageView.image.size.width) * currentImageView.image.size.height;
-//    
-//    if (!currentImageView.image) { // 防止 因imageview的image加载失败 导致 崩溃
-//        h = self.bounds.size.height;
-//    }
-    
-    // 获取当前图片的大小，设置动画的初始状态
-    BrowserImageView * browserImageView = _scrollView.subviews[self.currentImageIndex];
-    CGSize imageViewSize = browserImageView.contentSize;
-    tempView.bounds = CGRectMake(0, 0, imageViewSize.width, imageViewSize.height);
-    tempView.center = self.center;
-    
-    [self addSubview:tempView];
-
-    _saveButton.hidden = YES;
-    
-    [UIView animateWithDuration:SDPhotoBrowserHideImageAnimationDuration animations:^{
-        tempView.frame = targetTemp;
-        self.backgroundColor = [UIColor clearColor];
-    } completion:^(BOOL finished) {
-        [self removeFromSuperview];
-    }];
 }
 
 - (void)layoutSubviews
@@ -245,6 +206,45 @@
     [window addSubview:self];
 }
 
+- (void)photoClick:(UITapGestureRecognizer *)recognizer
+{
+    _scrollView.hidden = YES;
+    
+    //    SDBrowserImageView *currentImageView = (SDBrowserImageView *)recognizer.view;
+    BrowserImageView * currentImageView = (BrowserImageView *)recognizer.view;
+    NSInteger currentIndex = currentImageView.tag;
+    
+    UIView *sourceView = self.sourceImagesContainerView.subviews[currentIndex];
+    CGRect targetTemp = [self.sourceImagesContainerView convertRect:sourceView.frame toView:self];
+    
+    UIImageView *tempView = [[UIImageView alloc] init];
+    tempView.image = currentImageView.image;
+    
+    //    NSLog(@"w:%f, currentW:%f, currentH:%f", self.bounds.size.width, currentImageView.image.size.width, currentImageView.image.size.height);
+    //    CGFloat h = (self.bounds.size.width / currentImageView.image.size.width) * currentImageView.image.size.height;
+    //
+    //    if (!currentImageView.image) { // 防止 因imageview的image加载失败 导致 崩溃
+    //        h = self.bounds.size.height;
+    //    }
+    
+    // 获取当前图片的大小，设置动画的初始状态
+    BrowserImageView * browserImageView = _scrollView.subviews[currentIndex];
+    CGSize imageViewSize = browserImageView.imageViewFrame.size;
+    tempView.bounds = CGRectMake(0, 0, imageViewSize.width, imageViewSize.height);
+    tempView.center = self.center;
+    
+    [self addSubview:tempView];
+    
+    _saveButton.hidden = YES;
+    
+    [UIView animateWithDuration:SDPhotoBrowserHideImageAnimationDuration animations:^{
+        tempView.frame = targetTemp;
+        self.backgroundColor = [UIColor clearColor];
+    } completion:^(BOOL finished) {
+        [self removeFromSuperview];
+    }];
+}
+
 - (void)showFirstImage
 {
     UIView *sourceView = self.sourceImagesContainerView.subviews[self.currentImageIndex];
@@ -256,21 +256,61 @@
     [self addSubview:tempView];
     
     // 获取当前图片的大小，设置动画的初始状态
-    BrowserImageView * browserImageView = _scrollView.subviews[self.currentImageIndex];
-    CGSize targetTempSize = browserImageView.imageViewFrame.size;
+//    BrowserImageView * browserImageView = _scrollView.subviews[self.currentImageIndex];
+//    CGSize targetTempSize = browserImageView.imageViewFrame.size;
+    
+    // 重新获取大小
+
     
     tempView.frame = rect;
     tempView.contentMode = [_scrollView.subviews[self.currentImageIndex] contentMode];
     _scrollView.hidden = YES;
     
+    CGRect scaleOriginRect = [self imageScaleRectForIndex:_currentImageIndex];
+    BrowserImageView * browserImageView = _scrollView.subviews[self.currentImageIndex];
+    browserImageView.imageViewFrame = scaleOriginRect;
+    
     [UIView animateWithDuration:SDPhotoBrowserShowImageAnimationDuration animations:^{
         tempView.center = self.center;
-        tempView.bounds = (CGRect){CGPointZero, targetTempSize};
+//        tempView.bounds = (CGRect){CGPointZero, {targetTempSize.width * 2, targetTempSize.height * 2}};
+        tempView.bounds = scaleOriginRect;
     } completion:^(BOOL finished) {
         _hasShowedFistView = YES;
         [tempView removeFromSuperview];
         _scrollView.hidden = NO;
     }];
+}
+
+
+- (CGRect)imageScaleRectForIndex:(NSInteger)index
+{
+    UIImage * image = [self placeholderImageForIndex:index];
+    CGSize targetTempSize = image.size;
+    
+    //判断首先缩放的值
+    float scaleX = self.frame.size.width/targetTempSize.width;
+    float scaleY = self.frame.size.height/targetTempSize.height;
+    
+    CGRect scaleOriginRect;
+    //倍数小的，先到边缘
+    if (scaleX > scaleY)
+    {
+        //Y方向先到边缘
+        float imgViewWidth = targetTempSize.width*scaleY;
+        //        self.maximumZoomScale = self.frame.size.width/imgViewWidth;
+        
+        scaleOriginRect = (CGRect){self.frame.size.width/2-imgViewWidth/2,0,imgViewWidth,self.frame.size.height};
+    }
+    else
+    {
+        //X先到边缘
+        float imgViewHeight = targetTempSize.height*scaleX;
+        //        self.maximumZoomScale = self.frame.size.height/imgViewHeight;
+        
+        scaleOriginRect = (CGRect){0,self.frame.size.height/2-imgViewHeight/2,self.frame.size.width,imgViewHeight};
+    }
+    
+    return scaleOriginRect;
 }
 
 
@@ -304,16 +344,19 @@
         BrowserImageView * imageView = _scrollView.subviews[index];
         if (imageView.isScaled) {
             [imageView eliminateScale];
-//            [UIView animateWithDuration:0.5 animations:^{
-//                imageView.transform = CGAffineTransformIdentity;
-//            } completion:^(BOOL finished) {
-//                [imageView eliminateScale];
-//            }];
+
         }
     }
     
     
     _indexLabel.text = [NSString stringWithFormat:@"%d/%ld", index + 1, (long)self.imageCount];
+
+    BrowserImageView * browserImageView = _scrollView.subviews[index];
+    if (browserImageView.imageViewFrame.size.width == 0) {
+        CGRect scaleOriginRect = [self imageScaleRectForIndex:index];
+        browserImageView.imageViewFrame = scaleOriginRect;
+    }
+    
     [self setupImageOfImageViewForIndex:index];
 }
 

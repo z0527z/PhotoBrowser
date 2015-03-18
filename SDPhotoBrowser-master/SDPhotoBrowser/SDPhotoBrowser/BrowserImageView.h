@@ -14,7 +14,7 @@
 @property (nonatomic, assign, readonly) BOOL isScaled;
 @property (nonatomic, assign) BOOL hasLoadedImage;
 @property (nonatomic, strong) UIImage * image;
-@property (nonatomic, assign, readonly) CGRect imageViewFrame;
+@property (nonatomic, assign) CGRect imageViewFrame;
 
 
 - (void)eliminateScale; // 清除缩放
